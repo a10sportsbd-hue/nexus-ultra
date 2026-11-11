@@ -1,0 +1,14 @@
+{
+  "name": "nexus-ultra",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public",
+    "d1:migrate:local": "wrangler d1 migrations apply nexus-ultra-db --local",
+    "d1:migrate:remote": "wrangler d1 migrations apply nexus-ultra-db --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
