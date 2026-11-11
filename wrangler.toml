@@ -6,7 +6,7 @@ pages_build_output_dir = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "nexus-ultra-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "ad35a9f5-1909-47c2-ad99-2aff387a3c00"
 migrations_dir = "migrations"
 
 # Optional: create an R2 bucket before enabling product image uploads.
