@@ -1,14 +1,18 @@
-
 export async function onRequestGet({env,params}) {
- if(!env.PRODUCT_MEDIA)return new Response("Media storage unavailable",{status:503});
- const key=String(params.key||"").replace(/^\/+/,"");
- if(!key.startsWith("products/") || key.includes(".."))return new Response("Not found",{status:404});
- const object=await env.PRODUCT_MEDIA.get(key);
- if(!object)return new Response("Not found",{status:404});
- const headers=new Headers();
- object.writeHttpMetadata(headers);
- headers.set("ETag",object.httpEtag);
- headers.set("X-Content-Type-Options","nosniff");
- headers.set("Cache-Control","public, max-age=31536000, immutable");
- return new Response(object.body,{headers});
+ if(!env.DB)return new Response("Media storage unavailable",{status:503});
+ const raw=String(params.key||"");
+ const match=raw.match(/^([0-9a-f-]{36})\.(jpg|png|webp)$/i);
+ if(!match)return new Response("Not found",{status:404});
+ const row=await env.DB.prepare("SELECT content_type,data_base64 FROM media_objects WHERE id=?")
+   .bind(match[1]).first();
+ if(!row)return new Response("Not found",{status:404});
+ let binary;
+ try { binary=atob(row.data_base64); } catch { return new Response("Invalid media",{status:500}); }
+ const bytes=new Uint8Array(binary.length);
+ for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+ return new Response(bytes,{headers:{
+   "Content-Type":row.content_type,
+   "X-Content-Type-Options":"nosniff",
+   "Cache-Control":"public, max-age=86400"
+ }});
 }

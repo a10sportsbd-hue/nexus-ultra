@@ -119,3 +119,17 @@ From Admin → Settings:
 - Keep D1 backups and periodically review orders. Configure Cloudflare WAF/rate limiting for `/api/checkout` and `/api/admin/*` before high-volume production.
 - COD is the only enabled payment method. Payment status remains `unpaid` until staff manually reconciles payment on delivery; do not mark an order paid before cash is received.
 - This is a production-oriented starter, not a guarantee of compliance or load-tested production readiness. Before public launch, test delivery operations, cancellation/return rules, privacy/terms, backups, and abuse protection. Customer account/password recovery, SMS/OTP, automated shipping integrations and online gateways are not included.
+
+
+## Free image storage (no R2/card)
+This build stores optimized product images in the D1 `media_objects` table.
+No R2 subscription or `PRODUCT_MEDIA` binding is required. Upload accepts JPG,
+PNG, and WEBP files up to 256 KB; compress images before uploading. This is a
+small-catalog/free-tier option, not a high-volume media CDN. Monitor D1 storage
+and request quotas. The `/media/<uuid>.<ext>` route serves stored images.
+
+### Required migration
+After applying `0002_admin_sessions.sql` and `0003_checkout_cod_r2.sql`, apply
+`0004_free_d1_media_and_admin_session_fix.sql` once. It renames the existing
+`admin_sessions.admin_id` column to `user_id` to match the admin session code,
+and creates `media_objects`.
